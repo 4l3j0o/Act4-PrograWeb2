@@ -1,11 +1,14 @@
 using Microsoft.EntityFrameworkCore;
+using MySql.EntityFrameworkCore.Extensions;
 using ProductosAPI.Core;
 using ProductosAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseInMemoryDatabase("ProductosDb"));
+    options.UseMySQL(connectionString!));
 
 builder.Services.AddScoped<CategoriaService>();
 builder.Services.AddScoped<ProductoService>();
@@ -24,12 +27,6 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
-
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    context.Database.EnsureCreated();
-}
 
 if (app.Environment.IsDevelopment())
 {
